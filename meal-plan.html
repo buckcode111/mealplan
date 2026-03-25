@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-Day Meal Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm-white: #faf8f3;
+    --brown: #3d2c1e;
+    --mid-brown: #7a5c42;
+    --light-brown: #c4a882;
+    --green: #4a6741;
+    --light-green: #d4e3d0;
+    --accent: #c05c2e;
+    --card-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--brown);
+    color: var(--cream);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.6rem;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  header h1 em {
+    color: var(--light-brown);
+    font-style: italic;
+  }
+
+  header p {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--light-brown);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  .targets-bar {
+    background: var(--green);
+    color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 1.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .targets-bar span { opacity: 0.9; }
+  .targets-bar strong { opacity: 1; }
+
+  .day-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 1.5rem 1rem 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: 2px solid var(--light-brown);
+    color: var(--mid-brown);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .tab-btn:hover {
+    background: var(--light-brown);
+    color: #fff;
+    border-color: var(--light-brown);
+  }
+
+  .tab-btn.active {
+    background: var(--brown);
+    border-color: var(--brown);
+    color: var(--cream);
+  }
+
+  .day-panel { display: none; padding: 1.5rem 1rem 3rem; max-width: 860px; margin: 0 auto; }
+  .day-panel.active { display: block; }
+
+  .day-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--brown);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--light-brown);
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+
+  .day-title .kcal-badge {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .meals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .meals-grid { grid-template-columns: 1fr; }
+  }
+
+  .meal-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid #e8e0d4;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+
+  .meal-card:hover { box-shadow: 0 4px 16px rgba(61,44,30,0.1); }
+
+  .meal-card.snacks {
+    grid-column: 1 / -1;
+    background: var(--light-green);
+    border-color: #b8d4b2;
+  }
+
+  .meal-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--mid-brown);
+    margin-bottom: 0.4rem;
+  }
+
+  .meal-card.snacks .meal-label { color: var(--green); }
+
+  .meal-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--brown);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .ingredients {
+    font-size: 0.8rem;
+    color: var(--mid-brown);
+    line-height: 1.7;
+  }
+
+  .ingredients li { list-style: none; padding-left: 0; }
+  .ingredients li::before { content: "·  "; color: var(--light-brown); }
+
+  .meal-macros {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .macro-pill {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--cream);
+    color: var(--brown);
+    border: 1px solid var(--light-brown);
+  }
+
+  .cook-time {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.68rem;
+    color: var(--mid-brown);
+    background: var(--cream);
+    border: 1px solid #e0d8cc;
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+  }
+
+  .day-summary {
+    margin-top: 1.2rem;
+    background: var(--brown);
+    color: var(--cream);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  .day-summary strong { color: var(--light-brown); font-weight: 500; }
+
+  .note {
+    margin-top: 1rem;
+    padding: 0.8rem 1.2rem;
+    background: #fff8ee;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.8rem;
+    color: var(--mid-brown);
+    line-height: 1.6;
+  }
+
+  .shopping-section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+  }
+
+  .shopping-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-brown);
+    color: var(--brown);
+  }
+
+  .shopping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .shop-cat {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    border: 1px solid #e8e0d4;
+  }
+
+  .shop-cat h4 {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+  }
+
+  .shop-cat ul {
+    font-size: 0.82rem;
+    color: var(--mid-brown);
+    line-height: 1.8;
+    list-style: none;
+  }
+
+  .shop-cat ul li::before { content: "✓  "; color: var(--green); font-size: 0.7rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>7-Day <em>Easy</em> Meal Plan</h1>
+  <p></p>
+</header>
+
+<div class="targets-bar">
+  <span>🎯 ~<strong>2,700</strong> kcal</span>
+  <span>🥩 <strong>110–130g</strong> protein</span>
+  <span>🌾 <strong>~370g</strong> carbs</span>
+  <span>🫙 <strong>~80g</strong> fat</span>
+  <span>🥦 <strong>38g</strong> fiber</span>
+  <span>🦴 <strong>1,000mg</strong> calcium</span>
+  <span>🩸 <strong>8mg</strong> iron</span>
+</div>
+
+<div class="day-tabs">
+  <button class="tab-btn active" onclick="showDay(0)">Mon</button>
+  <button class="tab-btn" onclick="showDay(1)">Tue</button>
+  <button class="tab-btn" onclick="showDay(2)">Wed</button>
+  <button class="tab-btn" onclick="showDay(3)">Thu</button>
+  <button class="tab-btn" onclick="showDay(4)">Fri</button>
+  <button class="tab-btn" onclick="showDay(5)">Sat</button>
+  <button class="tab-btn" onclick="showDay(6)">Sun</button>
+  <button class="tab-btn" onclick="showDay(7)" style="border-color:#4a6741;color:#4a6741">🛒 Shopping</button>
+</div>
+
+<!-- DAY 1 -->
+<div class="day-panel active" id="day-0">
+  <div class="day-title">Monday <span class="kcal-badge">~2,680 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 0 min (prep night before)</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Overnight Oats</div>
+      <ul class="ingredients">
+        <li>80g rolled oats</li>
+        <li>250ml whole milk</li>
+        <li>1 banana, sliced</li>
+        <li>2 tbsp peanut butter</li>
+        <li>Drizzle of honey</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">620 kcal</span>
+        <span class="macro-pill">22g protein</span>
+        <span class="macro-pill">High fiber</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 5 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Egg Mayo Wrap</div>
+      <ul class="ingredients">
+        <li>1 large whole wheat tortilla</li>
+        <li>3 hard-boiled eggs, roughly chopped</li>
+        <li>1.5 tbsp mayo</li>
+        <li>Handful of lettuce and cucumber</li>
+        <li>Salt, pepper</li>
+        <li>Glass of whole milk (250ml)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">580 kcal</span>
+        <span class="macro-pill">32g protein</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 15 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Beef &amp; Pesto Pasta</div>
+      <ul class="ingredients">
+        <li>100g spaghetti or penne (dry)</li>
+        <li>150g lean ground beef</li>
+        <li>3 tbsp green pesto</li>
+        <li>30g grated parmesan</li>
+        <li>Handful of baby spinach (stir in at the end)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">800 kcal</span>
+        <span class="macro-pill">52g protein</span>
+        <span class="macro-pill">Iron ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>30g mixed nuts + 1 orange</li>
+        <li>200g Greek yogurt (plain)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~690 kcal</span>
+        <span class="macro-pill">Vit C ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+        <span class="macro-pill">Probiotics</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~130g</strong></span>
+    <span>Carbs <strong>~355g</strong></span>
+    <span>Fat <strong>~80g</strong></span>
+    <span>Fiber <strong>~36g</strong></span>
+    <span>Calcium <strong>~950mg</strong></span>
+    <span>Iron <strong>~9mg</strong></span>
+  </div>
+  <div class="note">⚡ Prep the oats the night before — just mix and refrigerate. Takes 2 minutes and saves your morning entirely.</div>
+</div>
+
+<!-- DAY 2 -->
+<div class="day-panel" id="day-1">
+  <div class="day-title">Tuesday <span class="kcal-badge">~2,650 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Scrambled Eggs on Toast</div>
+      <ul class="ingredients">
+        <li>3 large eggs</li>
+        <li>2 slices whole wheat toast</li>
+        <li>250ml glass of whole milk</li>
+        <li>1 orange or glass of OJ</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">590 kcal</span>
+        <span class="macro-pill">33g protein</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Egg Fried Rice</div>
+      <ul class="ingredients">
+        <li>1 microwave rice pouch (250g)</li>
+        <li>2 eggs</li>
+        <li>100g frozen mixed veg (defrost or microwave)</li>
+        <li>2 tbsp soy sauce</li>
+        <li>1 tsp sesame oil (optional)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">520 kcal</span>
+        <span class="macro-pill">22g protein</span>
+        <span class="macro-pill">Iron ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 15 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Chicken &amp; Veg Stir-Fry with Rice</div>
+      <ul class="ingredients">
+        <li>150g chicken breast, thin-sliced</li>
+        <li>1 microwave rice pouch (250g)</li>
+        <li>150g frozen broccoli or stir-fry mix</li>
+        <li>2 tbsp soy sauce</li>
+        <li>1 tsp garlic powder</li>
+        <li>1 tbsp vegetable oil</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">670 kcal</span>
+        <span class="macro-pill">48g protein</span>
+        <span class="macro-pill">Vit C ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>1 apple + 2 tbsp peanut butter</li>
+        <li>40g cheddar + 4–5 crackers</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~620 kcal</span>
+        <span class="macro-pill">Ca ✓</span>
+        <span class="macro-pill">Fiber ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~116g</strong></span>
+    <span>Carbs <strong>~360g</strong></span>
+    <span>Fat <strong>~78g</strong></span>
+    <span>Fiber <strong>~34g</strong></span>
+    <span>Calcium <strong>~920mg</strong></span>
+    <span>Iron <strong>~8mg</strong></span>
+  </div>
+  <div class="note">⚡ Use a microwave rice pouch for both lunch and dinner — zero prep, heats in 2 minutes.</div>
+</div>
+
+<!-- DAY 3 -->
+<div class="day-panel" id="day-2">
+  <div class="day-title">Wednesday <span class="kcal-badge">~2,700 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 2 min</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Greek Yogurt Bowl</div>
+      <ul class="ingredients">
+        <li>250g plain Greek yogurt</li>
+        <li>60g granola</li>
+        <li>100g mixed berries (frozen/fresh)</li>
+        <li>1 tbsp honey</li>
+        <li>Glass of orange juice (200ml)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">560 kcal</span>
+        <span class="macro-pill">24g protein</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Vit C ✓✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Chicken &amp; Cheese Quesadilla</div>
+      <ul class="ingredients">
+        <li>2 large whole wheat tortillas</li>
+        <li>120g pre-cooked or rotisserie chicken, shredded</li>
+        <li>60g cheddar, grated</li>
+        <li>Handful of baby spinach</li>
+        <li>Sour cream or mayo on the side</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">620 kcal</span>
+        <span class="macro-pill">44g protein</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Iron ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 15 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Pan-Fried Chicken Breast + Rice + Broccoli</div>
+      <ul class="ingredients">
+        <li>150g chicken breast</li>
+        <li>1 microwave rice pouch (250g)</li>
+        <li>150g frozen broccoli (microwave)</li>
+        <li>Salt, pepper, garlic powder</li>
+        <li>1 tbsp olive oil</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">650 kcal</span>
+        <span class="macro-pill">52g protein</span>
+        <span class="macro-pill">Vit C ✓</span>
+        <span class="macro-pill">Iron ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>1 banana + 2 tbsp peanut butter</li>
+        <li>250ml whole milk + 2 oatcakes</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~620 kcal</span>
+        <span class="macro-pill">Ca ✓</span>
+        <span class="macro-pill">Potassium ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~126g</strong></span>
+    <span>Carbs <strong>~330g</strong></span>
+    <span>Fat <strong>~82g</strong></span>
+    <span>Fiber <strong>~36g</strong></span>
+    <span>Calcium <strong>~1,100mg</strong></span>
+    <span>Iron <strong>~9mg</strong></span>
+  </div>
+  <div class="note">⚡ Quesadilla takes about 3 min per side in a dry pan — press it down with a spatula and flip once. Use leftover rotisserie chicken to make it even faster.</div>
+</div>
+
+<!-- DAY 4 -->
+<div class="day-panel" id="day-3">
+  <div class="day-title">Thursday <span class="kcal-badge">~2,720 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 0 min (prep Wed night)</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Overnight Oats</div>
+      <ul class="ingredients">
+        <li>80g rolled oats</li>
+        <li>250ml whole milk</li>
+        <li>1 banana, sliced</li>
+        <li>2 tbsp peanut butter</li>
+        <li>Drizzle of honey</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">620 kcal</span>
+        <span class="macro-pill">22g protein</span>
+        <span class="macro-pill">High fiber</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 5 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Chicken Sandwich</div>
+      <ul class="ingredients">
+        <li>150g rotisserie or pre-cooked chicken</li>
+        <li>2 thick slices whole wheat bread</li>
+        <li>Lettuce, cucumber, mustard or mayo</li>
+        <li>250ml glass of milk</li>
+        <li>1 apple on the side</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">620 kcal</span>
+        <span class="macro-pill">52g protein</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 18 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Chicken Thighs + Mash + Corn</div>
+      <ul class="ingredients">
+        <li>2 chicken thighs (bone-in or boneless)</li>
+        <li>Instant mash (follow pack — ~200g made up)</li>
+        <li>150g frozen corn (microwave)</li>
+        <li>Salt, pepper, garlic powder</li>
+        <li>30g butter (for mash)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">750 kcal</span>
+        <span class="macro-pill">48g protein</span>
+        <span class="macro-pill">Ca ✓</span>
+        <span class="macro-pill">Vit C ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>30g mixed nuts + 1 orange</li>
+        <li>200g plain Greek yogurt</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~520 kcal</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Vit C ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~134g</strong></span>
+    <span>Carbs <strong>~340g</strong></span>
+    <span>Fat <strong>~84g</strong></span>
+    <span>Fiber <strong>~35g</strong></span>
+    <span>Calcium <strong>~980mg</strong></span>
+    <span>Iron <strong>~8mg</strong></span>
+  </div>
+  <div class="note">⚡ Buy a rotisserie chicken — use half Thursday lunch, half Friday dinner. Saves two separate cooking sessions.</div>
+</div>
+
+<!-- DAY 5 -->
+<div class="day-panel" id="day-4">
+  <div class="day-title">Friday <span class="kcal-badge">~2,660 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Scrambled Eggs on Toast</div>
+      <ul class="ingredients">
+        <li>3 large eggs</li>
+        <li>2 slices whole wheat toast</li>
+        <li>250ml glass of whole milk</li>
+        <li>1 orange</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">590 kcal</span>
+        <span class="macro-pill">33g protein</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Vit C ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 5 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Egg Mayo Wrap</div>
+      <ul class="ingredients">
+        <li>1 large whole wheat tortilla</li>
+        <li>3 hard-boiled eggs, roughly chopped</li>
+        <li>1.5 tbsp mayo</li>
+        <li>Handful of lettuce and cucumber</li>
+        <li>Salt, pepper</li>
+        <li>250ml glass of whole milk</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">580 kcal</span>
+        <span class="macro-pill">32g protein</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 15 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Beef &amp; Pesto Pasta</div>
+      <ul class="ingredients">
+        <li>100g penne or spaghetti (dry)</li>
+        <li>150g lean ground beef</li>
+        <li>3 tbsp green pesto</li>
+        <li>30g grated parmesan</li>
+        <li>Handful of baby spinach (stir in at the end)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">800 kcal</span>
+        <span class="macro-pill">52g protein</span>
+        <span class="macro-pill">Iron ✓</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>2 hard-boiled eggs (batch-boil on Sunday)</li>
+        <li>1 apple + 2 tbsp peanut butter</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~480 kcal</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Fiber ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~144g</strong></span>
+    <span>Carbs <strong>~320g</strong></span>
+    <span>Fat <strong>~82g</strong></span>
+    <span>Fiber <strong>~33g</strong></span>
+    <span>Calcium <strong>~930mg</strong></span>
+    <span>Iron <strong>~9mg</strong></span>
+  </div>
+  <div class="note">⚡ Boil 6–8 eggs on Sunday and keep them in the fridge all week — ready-made protein with zero effort.</div>
+</div>
+
+<!-- DAY 6 -->
+<div class="day-panel" id="day-5">
+  <div class="day-title">Saturday <span class="kcal-badge">~2,730 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 2 min</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Greek Yogurt Bowl</div>
+      <ul class="ingredients">
+        <li>250g plain Greek yogurt</li>
+        <li>60g granola</li>
+        <li>100g mixed berries</li>
+        <li>1 tbsp honey</li>
+        <li>Glass of orange juice (200ml)</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">560 kcal</span>
+        <span class="macro-pill">24g protein</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Vit C ✓✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Egg Fried Rice</div>
+      <ul class="ingredients">
+        <li>1 microwave rice pouch (250g)</li>
+        <li>2 eggs</li>
+        <li>100g frozen mixed veg</li>
+        <li>2 tbsp soy sauce</li>
+        <li>1 tsp sesame oil</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">520 kcal</span>
+        <span class="macro-pill">22g protein</span>
+        <span class="macro-pill">Iron ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 18 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Chicken Thighs + Rice + Broccoli</div>
+      <ul class="ingredients">
+        <li>2 chicken thighs (boneless)</li>
+        <li>1 microwave rice pouch (250g)</li>
+        <li>150g frozen broccoli (microwave)</li>
+        <li>Salt, pepper, garlic powder, olive oil</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">660 kcal</span>
+        <span class="macro-pill">50g protein</span>
+        <span class="macro-pill">Vit C ✓</span>
+        <span class="macro-pill">Iron ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day</div>
+      <ul class="ingredients">
+        <li>1 banana + 2 tbsp peanut butter</li>
+        <li>40g cheddar + 4–5 crackers</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~620 kcal</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Potassium ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~112g</strong></span>
+    <span>Carbs <strong>~360g</strong></span>
+    <span>Fat <strong>~84g</strong></span>
+    <span>Fiber <strong>~38g</strong></span>
+    <span>Calcium <strong>~1,100mg</strong></span>
+    <span>Iron <strong>~9mg</strong></span>
+  </div>
+</div>
+
+<!-- DAY 7 -->
+<div class="day-panel" id="day-6">
+  <div class="day-title">Sunday <span class="kcal-badge">~2,700 kcal</span></div>
+  <div class="meals-grid">
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 8 min</span>
+      <div class="meal-label">Breakfast</div>
+      <div class="meal-name">Cheesy Omelette + Toast</div>
+      <ul class="ingredients">
+        <li>3 large eggs</li>
+        <li>30g cheddar, grated</li>
+        <li>2 slices whole wheat toast</li>
+        <li>250ml whole milk</li>
+        <li>1 orange or glass of OJ</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">640 kcal</span>
+        <span class="macro-pill">38g protein</span>
+        <span class="macro-pill">Ca ✓✓</span>
+        <span class="macro-pill">Vit D ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 5 min</span>
+      <div class="meal-label">Lunch</div>
+      <div class="meal-name">Egg Mayo Sandwich</div>
+      <ul class="ingredients">
+        <li>3 hard-boiled eggs, roughly mashed</li>
+        <li>2 thick slices whole wheat bread</li>
+        <li>1.5 tbsp mayo</li>
+        <li>Handful of lettuce and spinach</li>
+        <li>250ml glass of milk on the side</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">580 kcal</span>
+        <span class="macro-pill">30g protein</span>
+        <span class="macro-pill">Vit D ✓</span>
+        <span class="macro-pill">Ca ✓✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <span class="cook-time">⏱ 15 min</span>
+      <div class="meal-label">Dinner</div>
+      <div class="meal-name">Beef &amp; Spinach Rice Bowl</div>
+      <ul class="ingredients">
+        <li>150g lean ground beef</li>
+        <li>1 microwave rice pouch (250g)</li>
+        <li>Big handful baby spinach (stir in at end)</li>
+        <li>2 tbsp soy sauce</li>
+        <li>1 tsp garlic powder</li>
+        <li>1 tbsp vegetable oil</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">650 kcal</span>
+        <span class="macro-pill">42g protein</span>
+        <span class="macro-pill">Iron ✓✓</span>
+        <span class="macro-pill">Folate ✓</span>
+      </div>
+    </div>
+
+    <div class="meal-card snacks">
+      <div class="meal-label">Snacks</div>
+      <div class="meal-name">Throughout the day + Prep</div>
+      <ul class="ingredients">
+        <li>30g mixed nuts + banana</li>
+        <li>250ml milk</li>
+        <li>🥚 Batch-boil 6–8 eggs for the week</li>
+        <li>🥣 Prep overnight oats for Monday</li>
+      </ul>
+      <div class="meal-macros">
+        <span class="macro-pill">~480 kcal</span>
+        <span class="macro-pill">Ca ✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-summary">
+    <span>Protein <strong>~122g</strong></span>
+    <span>Carbs <strong>~330g</strong></span>
+    <span>Fat <strong>~80g</strong></span>
+    <span>Fiber <strong>~39g</strong></span>
+    <span>Calcium <strong>~1,050mg</strong></span>
+    <span>Iron <strong>~12mg</strong></span>
+  </div>
+  <div class="note">⚡ Sunday takes a tiny bit more effort but sets up the week: batch-boil eggs (10 min, no attention needed) and prep the Monday oats (2 min). That's it.</div>
+</div>
+
+<!-- SHOPPING LIST -->
+<div class="day-panel" id="day-7">
+  <div class="day-title">Weekly Shopping List</div>
+  <div class="shopping-section" style="padding:0">
+    <div class="shopping-grid">
+      <div class="shop-cat">
+        <h4>Protein</h4>
+        <ul>
+          <li>18 large eggs</li>
+          <li>500g lean ground beef</li>
+          <li>500g chicken breast</li>
+          <li>6 chicken thighs</li>
+          <li>1 rotisserie chicken</li>
+        </ul>
+      </div>
+      <div class="shop-cat">
+        <h4>Dairy</h4>
+        <ul>
+          <li>2× 2L whole milk</li>
+          <li>500g plain Greek yogurt</li>
+          <li>200g cheddar block</li>
+          <li>100g parmesan (grated)</li>
+          <li>Butter</li>
+        </ul>
+      </div>
+      <div class="shop-cat">
+        <h4>Carbs</h4>
+        <ul>
+          <li>500g rolled oats</li>
+          <li>6× microwave rice pouches</li>
+          <li>500g pasta (penne or spaghetti)</li>
+          <li>Whole wheat bread (2 loaves)</li>
+          <li>6× large whole wheat tortillas</li>
+          <li>Granola (400g bag)</li>
+          <li>Crackers / oatcakes</li>
+          <li>Instant mash (1 pack)</li>
+        </ul>
+      </div>
+      <div class="shop-cat">
+        <h4>Fruit &amp; Veg</h4>
+        <ul>
+          <li>7 bananas</li>
+          <li>4 oranges</li>
+          <li>4 apples</li>
+          <li>Mixed berries (frozen bag, 400g)</li>
+          <li>Frozen broccoli (1kg bag)</li>
+          <li>Frozen corn (500g)</li>
+          <li>Frozen mixed veg (500g)</li>
+          <li>Baby spinach (300g bag)</li>
+          <li>Lettuce, cucumber</li>
+        </ul>
+      </div>
+      <div class="shop-cat">
+        <h4>Pantry</h4>
+        <ul>
+          <li>Peanut butter (large jar)</li>
+          <li>Mixed nuts (200g)</li>
+          <li>Pesto (2 jars, green)</li>
+          <li>Sour cream (small tub)</li>
+          <li>Soy sauce</li>
+          <li>Olive oil</li>
+          <li>Vegetable oil</li>
+          <li>Honey</li>
+          <li>Garlic powder</li>
+          <li>Sesame oil (optional)</li>
+          <li>Orange juice (1L carton)</li>
+          <li>Mayo and/or mustard</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:1.2rem">💧 Drink roughly 2.5–3L of water daily on top of what you get from food and milk. With salmon removed, Vitamin D is now harder to hit from food — a daily supplement (1,000 IU) is strongly recommended. Scale up pasta and rice portions if your activity level is high.</div>
+  </div>
+</div>
+
+<script>
+  function showDay(index) {
+    document.querySelectorAll('.day-panel').forEach((p, i) => {
+      p.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === index);
+    });
+  }
+</script>
+</body>
+</html>
